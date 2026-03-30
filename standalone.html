@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#0c0c14">
+<title>📋 英语A级备考打卡</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,'PingFang SC','Helvetica Neue',sans-serif;background:#0c0c14;color:#e8e8f0;min-height:100vh;padding-bottom:80px;-webkit-tap-highlight-color:transparent}
+.top{position:sticky;top:0;z-index:100;background:rgba(12,12,20,.95);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.06);padding:14px 16px 12px}
+.top h1{font-size:18px;font-weight:700;background:linear-gradient(135deg,#60a5fa,#a78bfa,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.top-sub{font-size:12px;color:#7777a0;margin-top:3px}
+.top-sub b{color:#f472b6;font-weight:600}
+.prog{margin-top:10px;height:7px;background:rgba(255,255,255,.06);border-radius:100px;overflow:hidden}
+.prog-bar{height:100%;border-radius:100px;background:linear-gradient(90deg,#60a5fa,#a78bfa,#f472b6);transition:width .5s}
+.stats{display:flex;justify-content:space-between;margin-top:8px;font-size:12px;color:#7777a0}
+.stats b{color:#60a5fa;font-weight:600}
+.weeks{display:flex;gap:6px;padding:12px 16px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.weeks::-webkit-scrollbar{display:none}
+.wk{flex-shrink:0;padding:7px 16px;border-radius:100px;font-size:13px;font-weight:600;background:rgba(255,255,255,.04);color:#7777a0;border:1.5px solid transparent;cursor:pointer;transition:all .2s;white-space:nowrap;-webkit-user-select:none;user-select:none}
+.wk.on{background:rgba(96,165,250,.12);color:#60a5fa;border-color:rgba(96,165,250,.25)}
+.wk.done{color:#4ade80}
+.ph{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;margin-left:6px}
+.ph-b{background:rgba(96,165,250,.15);color:#60a5fa}
+.ph-s{background:rgba(250,204,21,.15);color:#facc15}
+.ph-r{background:rgba(248,113,113,.15);color:#f87171}
+.goal{margin:0 16px 12px;padding:14px 16px;background:linear-gradient(135deg,rgba(96,165,250,.06),rgba(167,139,250,.06));border:1px solid rgba(96,165,250,.1);border-radius:14px}
+.goal-t{font-size:13px;color:#60a5fa;font-weight:600;margin-bottom:4px}
+.goal-d{font-size:14px;color:#bbb;line-height:1.6}
+.day{margin:0 16px 10px;background:#151520;border:1px solid rgba(255,255,255,.06);border-radius:16px;overflow:hidden}
+.day.today{border-color:rgba(96,165,250,.25)}
+.day.ok{border-color:rgba(74,222,128,.2);background:rgba(74,222,128,.05)}
+.dh{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;-webkit-user-select:none;user-select:none}
+.dl{display:flex;align-items:center;gap:10px}
+.dot{width:9px;height:9px;border-radius:50%;background:#333;flex-shrink:0}
+.day.today .dot{background:#60a5fa;box-shadow:0 0 8px rgba(96,165,250,.5)}
+.day.ok .dot{background:#4ade80;box-shadow:0 0 8px rgba(74,222,128,.5)}
+.dd{font-size:15px;font-weight:700}
+.dw{font-size:12px;color:#7777a0;margin-left:6px}
+.dt{font-size:11px;padding:2px 8px;border-radius:100px;font-weight:600}
+.day.today .dt{background:rgba(96,165,250,.12);color:#60a5fa}
+.day.ok .dt{background:rgba(74,222,128,.1);color:#4ade80}
+.day:not(.today):not(.ok) .dt{background:rgba(255,255,255,.04);color:#7777a0}
+.db{padding:0 16px 14px;display:none}
+.db.open{display:block}
+.tk{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.03)}
+.tk:last-of-type{border-bottom:none}
+.cb{width:28px;height:28px;border-radius:9px;flex-shrink:0;border:2.5px solid rgba(255,255,255,.12);background:rgba(255,255,255,.03);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;-webkit-user-select:none;user-select:none;touch-action:manipulation}
+.cb.on{border-color:#4ade80;background:#4ade80;box-shadow:0 0 12px rgba(74,222,128,.3)}
+.cb svg{width:15px;height:15px;opacity:0;transform:scale(.4);transition:all .2s}
+.cb.on svg{opacity:1;transform:scale(1)}
+.ti{flex:1}
+.tn{font-size:14px;font-weight:500}
+.tk.ok .tn{color:#7777a0;text-decoration:line-through;text-decoration-color:rgba(74,222,128,.3)}
+.tt{font-size:11px;color:#7777a0;margin-top:3px}
+.ni{width:100%;margin-top:8px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:9px 13px;color:#e8e8f0;font-size:13px;outline:none}
+.ni:focus{border-color:rgba(96,165,250,.3)}
+.ni::placeholder{color:#7777a0}
+.bot{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(12,12,20,.95);backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,.06);padding:14px 16px;display:flex;justify-content:space-around}
+.bi{text-align:center}
+.bn{font-size:22px;font-weight:800;background:linear-gradient(135deg,#60a5fa,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.bl{font-size:11px;color:#7777a0;margin-top:2px}
+.rb{position:fixed;top:14px;right:16px;z-index:200;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#7777a0;font-size:12px;padding:5px 12px;border-radius:10px;cursor:pointer;-webkit-user-select:none;user-select:none}
+.cel{position:fixed;top:50%;left:50%;z-index:999;transform:translate(-50%,-50%) scale(.7);background:#151520;border:2px solid #4ade80;border-radius:24px;padding:36px 44px;text-align:center;opacity:0;pointer-events:none;transition:all .4s}
+.cel.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.cel .em{font-size:52px;margin-bottom:10px}
+.cel .tl{font-size:20px;font-weight:700;color:#4ade80}
+.cel .su{font-size:13px;color:#7777a0;margin-top:6px}
+@keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.1)}100%{transform:scale(1)}}
+.pop{animation:pop .2s}
+.conf{position:fixed;pointer-events:none;z-index:1000}
+</style>
+</head>
+<body>
+<div class="top">
+<h1>📋 英语A级备考打卡</h1>
+<div class="top-sub">考试：2026年6月13日 · 距今 <b id="dl">0</b> 天</div>
+<div class="prog"><div class="prog-bar" id="pf"></div></div>
+<div class="stats"><span>今日 <b id="st">0/0</b></span><span>本周 <b id="sw">0/0</b></span><span>总进度 <b id="sp">0%</b></span></div>
+</div>
+<button class="rb" id="br">重置</button>
+<div class="weeks" id="ws"></div>
+<div id="app"></div>
+<div class="bot"><div class="bi"><div class="bn" id="bs">0</div><div class="bl">连续打卡天</div></div><div class="bi"><div class="bn" id="bw">0</div><div class="bl">累计新词</div></div><div class="bi"><div class="bn" id="bp">0</div><div class="bl">完成真题</div></div></div>
+<div class="cel" id="cel"><div class="em">🎉</div><div class="tl">今日任务全部完成！</div><div class="su">坚持就是胜利！</div></div>
+<script>
+(function(){
+"use strict";
+var EX=new Date(2026,5,13),ST=new Date(2026,2,30),WK=['日','一','二','三','四','五','六'],TD=ds(new Date());
+var PH=[{n:'基础期',w:[1,2,3,4],c:'ph-b'},{n:'强化期',w:[5,6,7,8],c:'ph-s'},{n:'冲刺期',w:[9,10,11],c:'ph-r'}];
+var GO={1:'熟悉题型+高频词第一轮+语法：一般时态',2:'高频词继续+语法：进行时/完成时',3:'高频词+被动语态+定语从句',4:'高频词收尾+状语从句',5:'单词二轮+每周2套真题+阅读技巧',6:'真题精刷+翻译专项+写作模板',7:'薄弱题型+写作实战',8:'强化期总结+模拟考试',9:'⚠️不学新词+高强度模拟',10:'模拟+查漏补缺',11:'只复习不刷新题·考前调整'};
+function ds(d){return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())}
+function p(n){return n<10?'0'+n:''+n}
+function wd(w){var s=new Date(ST);s.setDate(s.getDate()+(w-1)*7);var a=[];for(var i=0;i<7;i++){var d=new Date(s);d.setDate(d.getDate()+i);a.push(d)}return a}
+function fw(){return Math.max(1,Math.min(11,Math.floor((new Date()-ST)/(7*864e5))+1))}
+function gp(w){for(var i=0;i<PH.length;i++){if(PH[i].w.indexOf(w)>=0)return PH[i]}return PH[0]}
+var SK='eng_v4';
+function ld(){try{return JSON.parse(localStorage.getItem(SK)||'{}')}catch(e){return{}}}
+function sv(s){localStorage.setItem(SK,JSON.stringify(s))}
+function ic(d,i){var s=ld();return !!(s[d]&&s[d][i])}
+function tc(d,i){var s=ld();if(!s[d])s[d]={};s[d][i]=!s[d][i];sv(s);return s[d][i]}
+function gt(d,w,dd){
+var we=dd===0||dd===6,sp=w>=9,t=[];
+if(sp){t.push({n:'复习难词本',t:'25',i:'📖'});t.push({n:'听力磨耳朵',t:'15',i:'🎧'});
+if(w===11&&dd>=5){t.length=0;if(dd===5){t.push({n:'轻松复习翻笔记',t:'30',i:'📖'});t.push({n:'早点休息准备考试',t:'',i:'😴'})}else{t.push({n:'🎯考试日！加油！',t:'',i:'🔥'})}}
+else if(dd===1||dd===3||dd===6)t.push({n:'真题整套（严格计时）',t:'2h',i:'📝'});
+else if(dd===2||dd===4||dd===0)t.push({n:'精析错题',t:'1.5h',i:'🔍'});
+else t.push({n:'错题本+写作模板默写',t:'1.5h',i:'✍️')}
+}else{
+t.push({n:'不背单词·新词'+(we?50:30)+'个',t:we?'30':'20',i:'🔤'});
+t.push({n:'不背单词·复习旧词',t:we?'20':'15',i:'🔄'});
+if(we){if(dd===6)t.push({n:'真题整套'+(w>=5?'（计时）':'（不计时）'),t:'2h',i:'📝'});
+else{t.push({n:'精析错题+单词总复习',t:'2h',i:'🔍'});if(w>=5)t.push({n:'写作练笔1篇',t:'30',i:'✍️'})}
+}else{if(w<=4){
+if(dd===1||dd===3||dd===5){
+var g={1:{1:'一般现在时',3:'一般过去时',5:'一般将来时'},2:{1:'现在进行时',3:'现在完成时',5:'过去完成时'},3:{1:'被动语态①',3:'被动语态②',5:'定语从句'},4:{1:'状语从句①',3:'状语从句②',5:'语法总复习'}};
+t.push({n:'语法：'+((g[w]&&g[w][dd])||'语法学习'),t:'60',i:'📐'})
+}else{var e={2:'听力',4:'阅读/完形'};t.push({n:'真题练习：'+(e[dd]||'综合'),t:'60',i:'📝'})}
+}else{
+if(dd===1)t.push({n:'翻译/阅读专项',t:'60',i:'📖'});
+else if(dd===2||dd===4)t.push({n:'真题整套（计时）',t:'80',i:'📝'});
+else if(dd===3)t.push({n:'精析昨日错题',t:'60',i:'🔍'});
+else t.push({n:'写作模板背诵+练笔',t:'60',i:'✍️'})
+}}
+t.push({n:'睡前复习今日单词',t:'10',i:'🌙'});t.push({n:'碎片时间·听力磨耳朵',t:'15',i:'🎧'})
+}return t}
+var cw=fw();
+function rw(){var el=document.getElementById('ws');el.innerHTML='';for(var w=1;w<=11;w++){var d=document.createElement('div');d.className='wk';if(w===cw)d.className+=' on';var days=wd(w),to=0,do_=0;for(var j=0;j<days.length;j++){var t=gt(ds(days[j]),w,days[j].getDay());to+=t.length;for(var k=0;k<t.length;k++){if(ic(ds(days[j]),k))do_++}}if(do_>=to&&to>0)d.className+=' done';d.textContent='第'+w+'周';d.setAttribute('data-w',w);el.appendChild(d)}}
+function render(){rw();var ph=gp(cw),days=wd(cw),st=ld();
+var h='<div class="goal"><div class="goal-t">第'+cw+'周·'+ph.n+' <span class="ph '+ph.c+'">'+ph.n+'</span></div><div class="goal-d">'+(GO[cw]||'')+'</div></div>';
+var wd_=0,wt=0,td_=0,tt=0,gd=0,gt_=0;
+for(var gw=1;gw<=11;gw++){var gd_=wd(gw);for(var gi=0;gi<gd_.length;gi++){var gtt=gt(ds(gd_[gi]),gw,gd_[gi].getDay());gt_+=gtt.length;for(var gj=0;gj<gtt.length;gj++){if(ic(ds(gd_[gi]),gj))gd++}}}
+for(var di=0;di<days.length;di++){var d=days[di],dds=ds(d),dow=d.getDay(),tasks=gt(dds,cw,dow),dd=0;
+for(var ti=0;ti<tasks.length;ti++){if(ic(dds,ti))dd++}
+var ad=dd>=tasks.length&&tasks.length>0,it=dds===TD;
+wt+=tasks.length;wd_+=dd;if(it){td_=dd;tt=tasks.length}
+var cl='day';if(it)cl+=' today';if(ad)cl+=' ok';
+h+='<div class="'+cl+'" data-d="'+dds+'">';
+h+='<div class="dh" data-t="'+dds+'"><div class="dl"><div class="dot"></div><span class="dd">'+(d.getMonth()+1)+'/'+d.getDate()+'</span><span class="dw">周'+WK[dow]+'</span></div><span class="dt">'+dd+'/'+tasks.length+'</span></div>';
+h+='<div class="db" id="b-'+dds+'">';
+for(var ti2=0;ti2<tasks.length;ti2++){var t=tasks[ti2],on=ic(dds,ti2);
+h+='<div class="tk'+(on?' ok':'')+'" data-s="'+dds+'" data-i="'+ti2+'"><div class="cb'+(on?' on':'')+'"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><div class="ti"><div class="tn">'+t.i+' '+t.n+'</div>'+(t.t?'<div class="tt">⏱'+t.t+'分钟</div>':'')+'</div></div>'}
+var nv=(st[dds]&&st[dds]._n)||'';
+h+='<input class="ni" placeholder="📝备注…" value="'+nv.replace(/"/g,'&quot;')+'" data-n="'+dds+'"></div></div>'}
+document.getElementById('app').innerHTML=h;
+document.getElementById('st').textContent=td_+'/'+tt;
+document.getElementById('sw').textContent=wd_+'/'+wt;
+var pc=gt_?Math.round(gd/gt_*100):0;
+document.getElementById('sp').textContent=pc+'%';
+document.getElementById('pf').style.width=pc+'%';
+document.getElementById('bs').textContent=cs();
+document.getElementById('bw').textContent=cw_();
+document.getElementById('bp').textContent=cp();
+document.getElementById('dl').textContent=Math.max(0,Math.ceil((EX-new Date())/864e5));
+var tb=document.getElementById('b-'+TD);if(tb)tb.classList.add('open')}
+function cs(){var s=0,d=new Date();for(var i=0;i<120;i++){var dds=ds(d),w=Math.max(1,Math.min(11,Math.floor((d-ST)/(7*864e5))+1)),tasks=gt(dds,w,d.getDay());if(!tasks.length){d.setDate(d.getDate()-1);continue}var dn=0;for(var j=0;j<tasks.length;j++){if(ic(dds,j))dn++}if(dn>=tasks.length)s++;else if(i===0&&dn>0){}else break;d.setDate(d.getDate()-1)}return s}
+function cw_(){var n=0;for(var w=1;w<=11;w++){var days=wd(w);for(var j=0;j<days.length;j++){var dds=ds(days[j]),tasks=gt(dds,w,days[j].getDay());for(var k=0;k<tasks.length;k++){if(tasks[k].n.indexOf('新词')>=0&&ic(dds,k)){var m=tasks[k].n.match(/(\d+)/);if(m)n+=parseInt(m[1])}}}}return n}
+function cp(){var n=0;for(var w=1;w<=11;w++){var days=wd(w);for(var j=0;j<days.length;j++){var dds=ds(days[j]),tasks=gt(dds,w,days[j].getDay());for(var k=0;k<tasks.length;k++){if(tasks[k].n.indexOf('真题整套')>=0&&ic(dds,k))n++}}}return n}
+function us(){var gd=0,gt_=0;for(var w=1;w<=11;w++){var days=wd(w);for(var j=0;j<days.length;j++){var t=gt(ds(days[j]),w,days[j].getDay());gt_+=t.length;for(var k=0;k<t.length;k++){if(ic(ds(days[j]),k))gd++}}}
+var pc=gt_?Math.round(gd/gt_*100):0;document.getElementById('sp').textContent=pc+'%';document.getElementById('pf').style.width=pc+'%';
+var tasks=gt(TD,cw,new Date().getDay()),dd=0;for(var i=0;i<tasks.length;i++){if(ic(TD,i))dd++}
+document.getElementById('st').textContent=dd+'/'+tasks.length;
+var d2=wd(cw),wd_=0,wt=0;for(var j=0;j<d2.length;j++){var t2=gt(ds(d2[j]),cw,d2[j].getDay());wt+=t2.length;for(var k=0;k<t2.length;k++){if(ic(ds(d2[j]),k))wd_++}}
+document.getElementById('sw').textContent=wd_+'/'+wt;
+document.getElementById('bs').textContent=cs();document.getElementById('bw').textContent=cw_();document.getElementById('bp').textContent=cp()}
+function burst(el){var r=el.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
+var cols=['#4ade80','#60a5fa','#a78bfa','#f472b6','#facc15'];
+for(var i=0;i<8;i++){var p=document.createElement('div');p.className='conf';p.style.cssText='width:8px;height:8px;border-radius:2px;left:'+cx+'px;top:'+cy+'px;background:'+cols[i%cols.length];document.body.appendChild(p);
+var a=Math.PI*2/8*i,dist=25+Math.random()*35;
+p.animate([{transform:'translate(0,0) rotate(0) scale(1)',opacity:1},{transform:'translate('+Math.cos(a)*dist+'px,'+(Math.sin(a)*dist-20)+'px) rotate('+(360+Math.random()*360)+'deg) scale(0)',opacity:0}],{duration:500,easing:'cubic-bezier(.22,1,.36,1)'});
+(function(pp){setTimeout(function(){pp.remove()},550)})(p)}}
+function cel(){var el=document.getElementById('cel');el.classList.add('show');
+var cols=['#4ade80','#60a5fa','#a78bfa','#f472b6','#facc15'];
+for(var i=0;i<40;i++){(function(ii){setTimeout(function(){var p=document.createElement('div');p.className='conf';var sz=(5+Math.random()*7)+'px';p.style.cssText='width:'+sz+';height:'+sz+';left:'+Math.random()*innerWidth+'px;top:-10px;background:'+cols[~~(Math.random()*cols.length)]+';border-radius:'+(Math.random()>.5?'50%':'2px');document.body.appendChild(p);var dr=(Math.random()-.5)*200;p.animate([{transform:'translateY(0) rotate(0)',opacity:1},{transform:'translate('+dr+'px,'+(innerHeight+60)+'px) rotate('+(720+Math.random()*720)+'deg)',opacity:0}],{duration:1200+Math.random()*800});setTimeout(function(){p.remove()},2100)},ii*25)})(i)}
+setTimeout(function(){el.classList.remove('show')},3000)}
+document.addEventListener('click',function(e){var t=e.target;
+var wk=t.closest?t.closest('.wk'):null;
+if(wk&&wk.hasAttribute('data-w')){cw=parseInt(wk.getAttribute('data-w'));render();return}
+var dh=t.closest?t.closest('.dh'):null;
+if(dh&&dh.hasAttribute('data-t')){var b=document.getElementById('b-'+dh.getAttribute('data-t'));if(b)b.classList.toggle('open');return}
+var cb=t.closest?t.closest('.cb'):null;
+if(cb){var task=cb.closest('.tk');if(!task)return;
+var dds=task.getAttribute('data-s'),ti=parseInt(task.getAttribute('data-i')),on=tc(dds,ti);
+if(on){cb.classList.add('on');task.classList.add('ok');cb.classList.add('pop');setTimeout(function(){cb.classList.remove('pop')},250);burst(cb)}
+else{cb.classList.remove('on');task.classList.remove('ok')}
+var dc=task.closest('.day'),ats=dc.querySelectorAll('.tk'),cnt=0;
+for(var i=0;i<ats.length;i++){var s=ats[i].getAttribute('data-s'),ii=parseInt(ats[i].getAttribute('data-i'));if(ic(s,ii))cnt++}
+dc.querySelector('.dt').textContent=cnt+'/'+ats.length;
+if(cnt>=ats.length&&ats.length>0){dc.classList.add('ok');cel()}else dc.classList.remove('ok');
+us();return}
+if(t.id==='br'||t.closest&&t.closest('#br')){if(confirm('确定重置？')){localStorage.removeItem(SK);render()}return}});
+document.addEventListener('change',function(e){if(e.target.classList.contains('ni')){var dds=e.target.getAttribute('data-n'),s=ld();if(!s[dds])s[dds]={};s[dds]._n=e.target.value;sv(s)}});
+render();
+setTimeout(function(){var tb=document.getElementById('b-'+TD);if(tb){tb.classList.add('open');var c=tb.closest('.day');if(c)c.scrollIntoView({behavior:'smooth',block:'center'})}},200);
+})();
+</script>
+</body>
+</html>
