@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0c0c14">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="英语A级打卡">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>📋 英语A级备考打卡</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0c0c14;--card:#151520;--card2:#1c1c2a;
+  --accent:#60a5fa;--accent2:#a78bfa;--pink:#f472b6;
+  --green:#4ade80;--green-bg:rgba(74,222,128,0.08);
+  --text:#e8e8f0;--dim:#7777a0;--border:rgba(255,255,255,0.06);
+  --safe:env(safe-area-inset-bottom, 0px);
+}
+body{
+  font-family:-apple-system,'SF Pro','PingFang SC','Noto Sans SC',sans-serif;
+  background:var(--bg);color:var(--text);
+  min-height:100vh;min-height:100dvh;
+  padding-bottom:calc(90px + var(--safe));
+  -webkit-tap-highlight-color:transparent;overflow-x:hidden;
+}
+.top{
+  position:sticky;top:0;z-index:100;
+  background:rgba(12,12,20,0.94);
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border-bottom:1px solid var(--border);padding:14px 16px 12px;
+}
+.top h1{
+  font-size:18px;font-weight:700;
+  background:linear-gradient(135deg,var(--accent),var(--accent2),var(--pink));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.top-sub{font-size:12px;color:var(--dim);margin-top:3px}
+.top-sub b{color:var(--pink);font-weight:600}
+.prog-wrap{margin-top:10px;height:7px;background:rgba(255,255,255,0.06);border-radius:100px;overflow:hidden}
+.prog-fill{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--accent),var(--accent2),var(--pink));transition:width .6s cubic-bezier(.22,1,.36,1)}
+.stats{display:flex;justify-content:space-between;margin-top:8px;font-size:12px;color:var(--dim)}
+.stats b{color:var(--accent);font-weight:600}
+.weeks{display:flex;gap:6px;padding:12px 16px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.weeks::-webkit-scrollbar{display:none}
+.wk{flex-shrink:0;padding:7px 16px;border-radius:100px;font-size:13px;font-weight:600;background:rgba(255,255,255,0.04);color:var(--dim);border:1.5px solid transparent;cursor:pointer;transition:all .2s;white-space:nowrap;-webkit-user-select:none;user-select:none}
+.wk.on{background:rgba(96,165,250,0.12);color:var(--accent);border-color:rgba(96,165,250,0.25)}
+.wk.done{color:var(--green)}
+.phase{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;margin-left:6px;vertical-align:middle}
+.ph-b{background:rgba(96,165,250,0.15);color:var(--accent)}
+.ph-s{background:rgba(250,204,21,0.15);color:#facc15}
+.ph-r{background:rgba(248,113,113,0.15);color:#f87171}
+.goal{margin:0 16px 12px;padding:14px 16px;background:linear-gradient(135deg,rgba(96,165,250,0.06),rgba(167,139,250,0.06));border:1px solid rgba(96,165,250,0.1);border-radius:14px}
+.goal-t{font-size:13px;color:var(--accent);font-weight:600;margin-bottom:4px}
+.goal-d{font-size:14px;color:#bbb;line-height:1.6}
+.day{margin:0 16px 10px;background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:border-color .3s,background .3s}
+.day.today{border-color:rgba(96,165,250,0.25)}
+.day.all-done{border-color:rgba(74,222,128,0.2);background:var(--green-bg)}
+.d-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;-webkit-user-select:none;user-select:none}
+.d-left{display:flex;align-items:center;gap:10px}
+.d-dot{width:9px;height:9px;border-radius:50%;background:#333;transition:all .3s;flex-shrink:0}
+.day.today .d-dot{background:var(--accent);box-shadow:0 0 10px rgba(96,165,250,0.5)}
+.day.all-done .d-dot{background:var(--green);box-shadow:0 0 10px rgba(74,222,128,0.5)}
+.d-date{font-size:15px;font-weight:700}
+.d-wk{font-size:12px;color:var(--dim);margin-left:6px}
+.d-tag{font-size:11px;padding:2px 8px;border-radius:100px;font-weight:600}
+.day.today .d-tag{background:rgba(96,165,250,0.12);color:var(--accent)}
+.day.all-done .d-tag{background:rgba(74,222,128,0.1);color:var(--green)}
+.day:not(.today):not(.all-done) .d-tag{background:rgba(255,255,255,0.04);color:var(--dim)}
+.d-body{padding:0 16px 14px;display:none}
+.d-body.open{display:block}
+.task{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.03)}
+.task:last-of-type{border-bottom:none}
+.tcb{
+  width:28px;height:28px;border-radius:9px;flex-shrink:0;
+  border:2.5px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.03);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all .2s cubic-bezier(.22,1,.36,1);
+  -webkit-user-select:none;user-select:none;
+}
+.tcb.on{border-color:var(--green);background:var(--green);box-shadow:0 0 14px rgba(74,222,128,0.3)}
+.tcb svg{width:15px;height:15px;opacity:0;transform:scale(0.4) rotate(-10deg);transition:all .25s cubic-bezier(.22,1,.36,1)}
+.tcb.on svg{opacity:1;transform:scale(1) rotate(0deg)}
+.t-info{flex:1;min-width:0}
+.t-name{font-size:14px;font-weight:500;transition:all .2s}
+.task.ok .t-name{color:var(--dim);text-decoration:line-through;text-decoration-color:rgba(74,222,128,0.3)}
+.t-time{font-size:11px;color:var(--dim);margin-top:3px}
+.note-in{width:100%;margin-top:8px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:9px 13px;color:var(--text);font-size:13px;outline:none;transition:border-color .2s}
+.note-in:focus{border-color:rgba(96,165,250,0.3)}
+.note-in::placeholder{color:var(--dim)}
+.bot{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(12,12,20,0.95);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-top:1px solid var(--border);padding:14px 16px var(--safe);display:flex;justify-content:space-around}
+.bot-i{text-align:center}
+.bot-n{font-size:22px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.bot-l{font-size:11px;color:var(--dim);margin-top:2px}
+.rst{position:fixed;top:14px;right:16px;z-index:200;background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--dim);font-size:12px;padding:5px 12px;border-radius:10px;cursor:pointer;-webkit-user-select:none;user-select:none}
+.celebrate{position:fixed;top:50%;left:50%;z-index:999;transform:translate(-50%,-50%) scale(0.7);background:var(--card);border:2px solid var(--green);border-radius:24px;padding:36px 44px;text-align:center;opacity:0;pointer-events:none;transition:all .4s cubic-bezier(.22,1,.36,1);box-shadow:0 24px 80px rgba(0,0,0,0.6)}
+.celebrate.show{opacity:1;transform:translate(-50%,-50%) scale(1);pointer-events:auto}
+.celebrate .em{font-size:52px;margin-bottom:10px}
+.celebrate .tt{font-size:20px;font-weight:700;color:var(--green)}
+.celebrate .ss{font-size:13px;color:var(--dim);margin-top:6px}
+/* install prompt */
+.install-bar{
+  position:fixed;bottom:calc(90px + var(--safe));left:0;right:0;z-index:200;
+  background:linear-gradient(135deg,rgba(96,165,250,0.15),rgba(167,139,250,0.15));
+  border-top:1px solid rgba(96,165,250,0.2);
+  padding:12px 16px;display:flex;align-items:center;justify-content:space-between;
+  transform:translateY(100%);transition:transform .4s cubic-bezier(.22,1,.36,1);
+}
+.install-bar.show{transform:translateY(0)}
+.install-bar span{font-size:13px;color:var(--text)}
+.install-btn{
+  background:var(--accent);color:#fff;border:none;border-radius:10px;
+  padding:8px 18px;font-size:13px;font-weight:600;cursor:pointer;
+}
+.install-close{
+  background:none;border:none;color:var(--dim);font-size:18px;
+  cursor:pointer;margin-left:10px;padding:4px;
+}
+@keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.1)}100%{transform:scale(1)}}
+.pop{animation:pop .2s ease}
+.confetti{position:fixed;width:8px;height:8px;border-radius:2px;pointer-events:none;z-index:1000}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <h1>📋 英语A级备考打卡</h1>
+  <div class="top-sub">考试：2026年6月13日 · 距今 <b id="daysLeft">0</b> 天</div>
+  <div class="prog-wrap"><div class="prog-fill" id="pFill"></div></div>
+  <div class="stats">
+    <span>今日 <b id="sToday">0/0</b></span>
+    <span>本周 <b id="sWeek">0/0</b></span>
+    <span>总进度 <b id="sTotal">0%</b></span>
+  </div>
+</div>
+
+<button class="rst" id="btnReset">重置</button>
+<div class="weeks" id="weeks"></div>
+<div id="app"></div>
+
+<div class="bot">
+  <div class="bot-i"><div class="bot-n" id="bStreak">0</div><div class="bot-l">连续打卡天</div></div>
+  <div class="bot-i"><div class="bot-n" id="bWords">0</div><div class="bot-l">累计新词</div></div>
+  <div class="bot-i"><div class="bot-n" id="bPapers">0</div><div class="bot-l">完成真题</div></div>
+</div>
+
+<div class="celebrate" id="celeb">
+  <div class="em">🎉</div>
+  <div class="tt">今日任务全部完成！</div>
+  <div class="ss">坚持就是胜利，继续保持！</div>
+</div>
+
+<div class="install-bar" id="installBar">
+  <span>📱 添加到桌面当App用</span>
+  <div>
+    <button class="install-btn" id="installBtn">安装</button>
+    <button class="install-close" id="installClose">✕</button>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+// ═══ PWA Install ═══
+var deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',function(e){
+  e.preventDefault();
+  deferredPrompt=e;
+  document.getElementById('installBar').classList.add('show');
+});
+document.getElementById('installBtn').addEventListener('click',function(){
+  if(!deferredPrompt) return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(function(){
+    deferredPrompt=null;
+    document.getElementById('installBar').classList.remove('show');
+  });
+});
+document.getElementById('installClose').addEventListener('click',function(){
+  document.getElementById('installBar').classList.remove('show');
+});
+
+// ═══ Service Worker ═══
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(function(){});
+}
+
+// ═══ 数据 ═══
+var EXAM=new Date(2026,5,13),START=new Date(2026,2,30);
+var WKD=['日','一','二','三','四','五','六'];
+var TODAY=ds(new Date());
+var PHASES=[
+  {name:'基础期',w:[1,2,3,4],c:'ph-b'},
+  {name:'强化期',w:[5,6,7,8],c:'ph-s'},
+  {name:'冲刺期',w:[9,10,11],c:'ph-r'}
+];
+var GOALS={
+  1:'熟悉题型 + 高频词第一轮启动 + 语法：一般时态',
+  2:'高频词继续 + 语法：进行时态 / 完成时态',
+  3:'高频词继续 + 语法：被动语态 + 定语从句',
+  4:'高频词第一轮收尾 + 语法：状语从句',
+  5:'单词第二轮 + 每周2套真题 + 阅读技巧',
+  6:'真题精刷 + 翻译专项 + 写作模板',
+  7:'攻克薄弱题型 + 写作实战',
+  8:'强化期总结 + 模拟考试检验',
+  9:'⚠️ 不再学新词 + 高强度模拟',
+  10:'模拟 + 查漏补缺',
+  11:'只复习不刷新题 · 考前调整'
+};
+
+function ds(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
+function pad(n){return n<10?'0'+n:''+n}
+function weekDays(w){
+  var s=new Date(START);s.setDate(s.getDate()+(w-1)*7);
+  var a=[];for(var i=0;i<7;i++){var d=new Date(s);d.setDate(d.getDate()+i);a.push(d)}return a;
+}
+function findWeek(){var n=Math.floor((new Date()-START)/(7*864e5));return Math.max(1,Math.min(11,n+1))}
+function getPhase(w){for(var i=0;i<PHASES.length;i++){if(PHASES[i].w.indexOf(w)>=0)return PHASES[i]}return PHASES[0]}
+
+var SK='engA_app';
+function ld(){try{return JSON.parse(localStorage.getItem(SK)||'{}')}catch(e){return{}}}
+function sv(s){localStorage.setItem(SK,JSON.stringify(s))}
+function isChecked(d,i){var s=ld();return !!(s[d]&&s[d][i])}
+function toggleCheck(d,i){var s=ld();if(!s[d])s[d]={};s[d][i]=!s[d][i];sv(s);return s[d][i]}
+
+function getTasks(dayStr,weekNum,dow){
+  var we=dow===0||dow===6,sp=weekNum>=9,ts=[];
+  if(sp){
+    ts.push({n:'复习难词本',t:'25分钟',i:'📖'});
+    ts.push({n:'听力磨耳朵',t:'15分钟',i:'🎧'});
+    if(weekNum===11&&dow>=5){
+      ts.length=0;
+      if(dow===5){ts.push({n:'轻松复习，翻翻笔记',t:'30分钟',i:'📖'});ts.push({n:'早点休息！准备考试用品',t:'',i:'😴'})}
+      else{ts.push({n:'🎯 考试日！加油！',t:'',i:'🔥'})}
+    }else if(dow===1||dow===3||dow===6){ts.push({n:'真题整套（严格计时）',t:'2小时',i:'📝'})}
+    else if(dow===2||dow===4||dow===0){ts.push({n:'精析错题',t:'1.5小时',i:'🔍'})}
+    else{ts.push({n:'错题本回顾 + 写作模板默写',t:'1.5小时',i:'✍️'})}
+  }else{
+    ts.push({n:'不背单词·新词'+(we?50:30)+'个',t:we?'30分钟':'20分钟',i:'🔤'});
+    ts.push({n:'不背单词·复习旧词',t:we?'20分钟':'15分钟',i:'🔄'});
+    if(we){
+      if(dow===6){ts.push({n:'真题整套'+(weekNum>=5?'（计时）':'（不计时）'),t:'2小时',i:'📝'})}
+      else{ts.push({n:'精析错题 + 本周单词总复习',t:'2小时',i:'🔍'});if(weekNum>=5)ts.push({n:'写作练笔1篇',t:'30分钟',i:'✍️'})}
+    }else{
+      if(weekNum<=4){
+        if(dow===1||dow===3||dow===5){
+          var gM={1:{1:'一般现在时',3:'一般过去时',5:'一般将来时'},2:{1:'现在进行时',3:'现在完成时',5:'过去完成时'},3:{1:'被动语态①',3:'被动语态②',5:'定语从句'},4:{1:'状语从句①',3:'状语从句②',5:'语法总复习'}};
+          ts.push({n:'语法：'+((gM[weekNum]&&gM[weekNum][dow])||'语法学习'),t:'60分钟',i:'📐'})
+        }else{
+          var exM={2:'听力部分',4:'阅读/完形填空'};ts.push({n:'真题练习：'+(exM[dow]||'综合'),t:'60分钟',i:'📝'})
+        }
+      }else{
+        if(dow===1)ts.push({n:'翻译/阅读专项',t:'60分钟',i:'📖'});
+        else if(dow===2||dow===4)ts.push({n:'真题整套（计时）',t:'80分钟',i:'📝'});
+        else if(dow===3)ts.push({n:'精析昨日错题',t:'60分钟',i:'🔍'});
+        else ts.push({n:'写作模板背诵+练笔',t:'60分钟',i:'✍️'})
+      }
+    }
+    ts.push({n:'睡前复习今日单词',t:'10分钟',i:'🌙'});
+    ts.push({n:'碎片时间·听力磨耳朵',t:'15分钟',i:'🎧'})
+  }
+  return ts;
+}
+
+var curWeek=findWeek();
+
+function renderWeeks(){
+  var el=document.getElementById('weeks');el.innerHTML='';
+  for(var w=1;w<=11;w++){
+    var d=document.createElement('div');d.className='wk';if(w===curWeek)d.className+=' on';
+    var days=weekDays(w),tot=0,don=0;
+    for(var j=0;j<days.length;j++){var t=getTasks(ds(days[j]),w,days[j].getDay());tot+=t.length;for(var k=0;k<t.length;k++){if(isChecked(ds(days[j]),k))don++}}
+    if(don>=tot&&tot>0)d.className+=' done';
+    d.textContent='第'+w+'周';d.setAttribute('data-w',w);el.appendChild(d)
+  }
+}
+
+function render(){
+  renderWeeks();
+  var ph=getPhase(curWeek),days=weekDays(curWeek),st=ld();
+  var html='<div class="goal"><div class="goal-t">第'+curWeek+'周 · '+ph.name+' <span class="phase '+ph.c+'">'+ph.name+'</span></div><div class="goal-d">'+(GOALS[curWeek]||'')+'</div></div>';
+  var wkD=0,wkT=0,tDayD=0,tDayT=0,gD=0,gT=0;
+  for(var gw=1;gw<=11;gw++){var gd=weekDays(gw);for(var gi=0;gi<gd.length;gi++){var gt=getTasks(ds(gd[gi]),gw,gd[gi].getDay());gT+=gt.length;for(var gj=0;gj<gt.length;gj++){if(isChecked(ds(gd[gi]),gj))gD++}}}
+  for(var di=0;di<days.length;di++){
+    var d=days[di],dds=ds(d),dow=d.getDay(),tasks=getTasks(dds,curWeek,dow),dayD=0;
+    for(var ti=0;ti<tasks.length;ti++){if(isChecked(dds,ti))dayD++}
+    var allDn=dayD>=tasks.length&&tasks.length>0,isT=dds===TODAY;
+    wkT+=tasks.length;wkD+=dayD;if(isT){tDayD=dayD;tDayT=tasks.length}
+    var cls='day';if(isT)cls+=' today';if(allDn)cls+=' all-done';
+    html+='<div class="'+cls+'" data-day="'+dds+'">';
+    html+='<div class="d-head" data-day="'+dds+'"><div class="d-left"><div class="d-dot"></div><span class="d-date">'+(d.getMonth()+1)+'/'+d.getDate()+'</span><span class="d-wk">周'+WKD[dow]+'</span></div><span class="d-tag">'+dayD+'/'+tasks.length+'</span></div>';
+    html+='<div class="d-body" id="b-'+dds+'">';
+    for(var ti2=0;ti2<tasks.length;ti2++){
+      var t=tasks[ti2],on=isChecked(dds,ti2);
+      html+='<div class="task'+(on?' ok':'')+'" data-ds="'+dds+'" data-ti="'+ti2+'"><div class="tcb'+(on?' on':'')+'"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><div class="t-info"><div class="t-name">'+t.i+' '+t.n+'</div>'+(t.t?'<div class="t-time">⏱ '+t.t+'</div>':'')+'</div></div>'
+    }
+    var noteVal=(st[dds]&&st[dds]._note)||'';
+    html+='<input class="note-in" placeholder="📝 添加备注…" value="'+noteVal.replace(/"/g,'&quot;')+'" data-note="'+dds+'"></div></div>'
+  }
+  document.getElementById('app').innerHTML=html;
+  document.getElementById('sToday').textContent=tDayD+'/'+tDayT;
+  document.getElementById('sWeek').textContent=wkD+'/'+wkT;
+  var pct=gT?Math.round(gD/gT*100):0;
+  document.getElementById('sTotal').textContent=pct+'%';
+  document.getElementById('pFill').style.width=pct+'%';
+  document.getElementById('bStreak').textContent=calcStreak();
+  document.getElementById('bWords').textContent=calcWords();
+  document.getElementById('bPapers').textContent=calcPapers();
+  document.getElementById('daysLeft').textContent=Math.max(0,Math.ceil((EXAM-new Date())/864e5));
+  var tb=document.getElementById('b-'+TODAY);if(tb)tb.classList.add('open')
+}
+
+function calcStreak(){
+  var s=0,d=new Date();
+  for(var i=0;i<120;i++){var dds=ds(d),w=Math.max(1,Math.min(11,Math.floor((d-START)/(7*864e5))+1)),tasks=getTasks(dds,w,d.getDay());
+    if(!tasks.length){d.setDate(d.getDate()-1);continue}
+    var done=0;for(var j=0;j<tasks.length;j++){if(isChecked(dds,j))done++}
+    if(done>=tasks.length)s++;else if(i===0&&done>0){}else break;d.setDate(d.getDate()-1)}return s
+}
+function calcWords(){
+  var n=0;for(var w=1;w<=11;w++){var days=weekDays(w);for(var j=0;j<days.length;j++){var dds=ds(days[j]),tasks=getTasks(dds,w,days[j].getDay());for(var k=0;k<tasks.length;k++){if(tasks[k].n.indexOf('新词')>=0&&isChecked(dds,k)){var m=tasks[k].n.match(/(\d+)/);if(m)n+=parseInt(m[1])}}}}return n
+}
+function calcPapers(){
+  var n=0;for(var w=1;w<=11;w++){var days=weekDays(w);for(var j=0;j<days.length;j++){var dds=ds(days[j]),tasks=getTasks(dds,w,days[j].getDay());for(var k=0;k<tasks.length;k++){if(tasks[k].n.indexOf('真题整套')>=0&&isChecked(dds,k))n++}}}return n
+}
+function updateStats(){
+  var gD=0,gT=0;for(var w=1;w<=11;w++){var days=weekDays(w);for(var j=0;j<days.length;j++){var t=getTasks(ds(days[j]),w,days[j].getDay());gT+=t.length;for(var k=0;k<t.length;k++){if(isChecked(ds(days[j]),k))gD++}}}
+  var pct=gT?Math.round(gD/gT*100):0;
+  document.getElementById('sTotal').textContent=pct+'%';document.getElementById('pFill').style.width=pct+'%';
+  var tasks=getTasks(TODAY,curWeek,new Date().getDay()),todayD=0;for(var i=0;i<tasks.length;i++){if(isChecked(TODAY,i))todayD++}
+  document.getElementById('sToday').textContent=todayD+'/'+tasks.length;
+  var days2=weekDays(curWeek),wkD=0,wkT=0;for(var j=0;j<days2.length;j++){var t2=getTasks(ds(days2[j]),curWeek,days2[j].getDay());wkT+=t2.length;for(var k=0;k<t2.length;k++){if(isChecked(ds(days2[j]),k))wkD++}}
+  document.getElementById('sWeek').textContent=wkD+'/'+wkT;
+  document.getElementById('bStreak').textContent=calcStreak();document.getElementById('bWords').textContent=calcWords();document.getElementById('bPapers').textContent=calcPapers()
+}
+
+function burst(el){
+  var r=el.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
+  var cols=['#4ade80','#60a5fa','#a78bfa','#f472b6','#facc15'];
+  for(var i=0;i<8;i++){var p=document.createElement('div');p.className='confetti';p.style.left=cx+'px';p.style.top=cy+'px';p.style.background=cols[i%cols.length];document.body.appendChild(p);
+  var a=(Math.PI*2/8)*i,dist=25+Math.random()*35;
+  p.animate([{transform:'translate(0,0) rotate(0) scale(1)',opacity:1},{transform:'translate('+Math.cos(a)*dist+'px,'+(Math.sin(a)*dist-20)+'px) rotate('+(360+Math.random()*360)+'deg) scale(0)',opacity:0}],{duration:500,easing:'cubic-bezier(.22,1,.36,1)'});
+  (function(pp){setTimeout(function(){pp.remove()},550)})(p)}
+}
+function celebrate(){
+  var el=document.getElementById('celeb');el.classList.add('show');
+  var cols=['#4ade80','#60a5fa','#a78bfa','#f472b6','#facc15','#f87171'];
+  for(var i=0;i<50;i++){(function(ii){setTimeout(function(){var p=document.createElement('div');p.className='confetti';p.style.left=Math.random()*innerWidth+'px';p.style.top='-10px';var sz=(5+Math.random()*7)+'px';p.style.width=sz;p.style.height=sz;p.style.background=cols[~~(Math.random()*cols.length)];p.style.borderRadius=Math.random()>.5?'50%':'2px';document.body.appendChild(p);var drift=(Math.random()-.5)*250;p.animate([{transform:'translateY(0) rotate(0)',opacity:1},{transform:'translate('+drift+'px,'+(innerHeight+60)+'px) rotate('+(720+Math.random()*720)+'deg)',opacity:0}],{duration:1200+Math.random()*800,easing:'cubic-bezier(.22,1,.36,1)'});setTimeout(function(){p.remove()},2100)},ii*25)})(i)}
+  setTimeout(function(){el.classList.remove('show')},3000)
+}
+
+document.body.addEventListener('click',function(e){
+  var t=e.target;
+  var wkBtn=t.closest?t.closest('.wk'):null;
+  if(wkBtn&&wkBtn.hasAttribute('data-w')){curWeek=parseInt(wkBtn.getAttribute('data-w'));render();return}
+  var dHead=t.closest?t.closest('.d-head'):null;
+  if(dHead&&dHead.hasAttribute('data-day')){var body=document.getElementById('b-'+dHead.getAttribute('data-day'));if(body)body.classList.toggle('open');return}
+  var tcb=t.closest?t.closest('.tcb'):null;
+  if(tcb){
+    var task=tcb.closest('.task');if(!task)return;
+    var dds=task.getAttribute('data-ds'),ti=parseInt(task.getAttribute('data-ti')),nowOn=toggleCheck(dds,ti);
+    if(nowOn){tcb.classList.add('on');task.classList.add('ok');tcb.classList.add('pop');setTimeout(function(){tcb.classList.remove('pop')},250);burst(tcb)}
+    else{tcb.classList.remove('on');task.classList.remove('ok')}
+    var dayCard=task.closest('.day'),allTasks=dayCard.querySelectorAll('.task'),cnt=0;
+    for(var i=0;i<allTasks.length;i++){var td=allTasks[i].getAttribute('data-ds'),ti2=parseInt(allTasks[i].getAttribute('data-ti'));if(isChecked(td,ti2))cnt++}
+    dayCard.querySelector('.d-tag').textContent=cnt+'/'+allTasks.length;
+    if(cnt>=allTasks.length&&allTasks.length>0){dayCard.classList.add('all-done');celebrate()}else{dayCard.classList.remove('all-done')}
+    updateStats();return
+  }
+  if(t.id==='btnReset'||t.closest&&t.closest('#btnReset')){if(confirm('确定要重置所有打卡记录？')){localStorage.removeItem(SK);render()}return}
+});
+document.body.addEventListener('change',function(e){if(e.target.classList.contains('note-in')){var dds=e.target.getAttribute('data-note'),s=ld();if(!s[dds])s[dds]={};s[dds]._note=e.target.value;sv(s)}});
+
+render();
+setTimeout(function(){var tb=document.getElementById('b-'+TODAY);if(tb){tb.classList.add('open');var card=tb.closest('.day');if(card)card.scrollIntoView({behavior:'smooth',block:'center'})}},200);
+})();
+</script>
+</body>
+</html>
